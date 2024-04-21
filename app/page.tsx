@@ -110,7 +110,6 @@ export default function Home() {
           {(isPending || isFetching) && 'Loading...'}
           {(error && 'An error has occurred: ' + error?.message)}
           {
-            // data?.data && console.log(data)
             data?.data &&
 
             data?.data.map((d: Post) =>
