@@ -6,6 +6,7 @@ import { url } from "@/util/url";
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { useFormik } from "formik";
+import Link from "next/link";
 import { toast } from "react-toastify";
 import * as Yup from 'yup';
 
@@ -26,6 +27,12 @@ export default function Home() {
     },
   });
 
+  const { isPending, error, data, isFetching } = useQuery({
+    queryKey: [key],
+    queryFn: () => axios.get(url),
+    staleTime: 60 * 1000,
+  })
+
   const mutation = useMutation({
     mutationFn: (newPost: CreatePost) => {
       return axios.post(url, newPost);
@@ -41,17 +48,6 @@ export default function Home() {
       toast.error("something went wrong, please try again")
       formik.setSubmitting(false)
     }
-  })
-
-  const { isPending, error, data, isFetching } = useQuery({
-    queryKey: [key],
-    queryFn: () => axios
-      .get(url)
-      .then((res) => res)
-      .catch(err => {
-        console.log(err);
-      }),
-    staleTime: 60 * 1000,
   })
 
   const isDisable = (formik.touched.body && formik.touched.title && !formik.isValid) || formik.isSubmitting;
@@ -112,14 +108,15 @@ export default function Home() {
         </h1>
         <div className="text-center">
           {(isPending || isFetching) && 'Loading...'}
-          {(error && 'An error has occurred: ' + error.message)}
+          {(error && 'An error has occurred: ' + error?.message)}
           {
+            // data?.data && console.log(data)
             data?.data &&
 
             data?.data.map((d: Post) =>
-              <a 
+              <Link 
                 key={d.id}
-                href={d.id as any}
+                href={d.id.toString()}
                 className="border rounded transition flex justify-between mb-3 p-3 hover:border-sky-500">
                 <p>
                   {d.title}
@@ -128,7 +125,7 @@ export default function Home() {
                 <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
                   -&gt;
                 </span>
-              </a>
+              </Link>
             )
           }
         </div>
